@@ -1,0 +1,122 @@
+/* Custom styles for cybersecurity scanner */
+.card {
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Custom button styling for scan button */
+#scanButton {
+    transition: all 0.2s ease-in-out;
+}
+
+#scanButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress bar customization */
+.progress {
+    height: 1.5rem;
+    border-radius: 0.375rem;
+}
+
+/* Threat level badge customization */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+}
+
+/* Code block styling for hashes and IPs */
+code {
+    background-color: var(--bs-gray-800);
+    color: var(--bs-light);
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    word-break: break-all;
+}
+
+/* Table styling improvements */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--bs-primary);
+}
+
+/* Alert styling */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Footer styling */
+footer {
+    border-top: 1px solid var(--bs-gray-700);
+}
+
+/* Loading state for form submission */
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Focus states for accessibility */
+.form-control:focus,
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Custom styling for threat level indicators */
+.threat-clean {
+    color: var(--bs-success);
+}
+
+.threat-low {
+    color: var(--bs-warning);
+}
+
+.threat-medium {
+    color: var(--bs-warning);
+}
+
+.threat-high {
+    color: var(--bs-danger);
+}
