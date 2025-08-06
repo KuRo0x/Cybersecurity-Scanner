@@ -54,7 +54,7 @@ To run this project locally, follow these steps:
     ```
     VIRUSTOTAL_API_KEY=your_virustotal_api_key
     ABUSEIPDB_API_KEY=your_abuseipdb_api_key
-    SESSION_SECRET=a_long_random_and_secure_string
+    
     ```
 
 4.  **Run the application:**
@@ -62,6 +62,7 @@ To run this project locally, follow these steps:
     python app.py
     ```
     The application will be available at `http://127.0.0.1:5000`.
+
 
 
 
