@@ -1,6 +1,6 @@
 # CyberSec Scanner - A Threat Intelligence Tool
 
-![CyberSec Scanner Screenshot](<>)
+![CyberSec Scanner Screenshot](<Screenshot 2025-08-06 180501.png>)
 
 A professional, Flask-based web application to analyze file hashes and IP addresses for potential security threats using industry-standard threat intelligence APIs. This project demonstrates a security-first mindset, robust back-end engineering, and a clean, modern front-end.
 
@@ -62,6 +62,7 @@ To run this project locally, follow these steps:
     python app.py
     ```
     The application will be available at `http://127.0.0.1:5000`.
+
 
 
 
