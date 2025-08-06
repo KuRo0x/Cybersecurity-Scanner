@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Results - Cybersecurity Scanner</title>
+    
+    <!-- Bootstrap CSS with Replit dark theme -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-shield-alt me-2"></i>
+                CyberSec Scanner
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>New Scan
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Header -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Scan Results
+                    </h1>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        New Scan
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scan Target Information -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-{{ 'file-code' if scan_type == 'hash' else 'globe' }} me-2"></i>
+                            Scan Target: {{ 'File Hash' if scan_type == 'hash' else 'IP Address' }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <code class="fs-6 me-3">{{ scan_input }}</code>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ scan_input }}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if scan_type == 'hash' %}
+            <!-- File Hash Results -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    {% if result.found %}
+                        <!-- Threat Level Card -->
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Threat Assessment
+                                </h5>
+                                {% set threat_class = 'success' if result.threat_level == 'Clean' else 'warning' if result.threat_level in ['Low Risk'] else 'danger' %}
+                                <span class="badge bg-{{ threat_class }} fs-6">
+                                    {% if result.threat_level == 'Clean' %}
+                                        <i class="fas fa-check-circle me-1"></i>
+                                    {% elif result.threat_level == 'Low Risk' %}
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle me-1"></i>
+                                    {% endif %}
+                                    {{ result.threat_level }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Detection Summary</h6>
+                                        <p class="mb-2">
+                                            <strong>{{ result.positives }}</strong> out of <strong>{{ result.total }}</strong> 
+                                            security vendors flagged this file as malicious.
+                                        </p>
+                                        <div class="progress mb-3">
+                                            {% set percentage = (result.positives / result.total * 100) if result.total > 0 else 0 %}
+                                            <div class="progress-bar bg-{{ threat_class }}" 
+                                                 style="width: {{ percentage }}%" 
+                                                 role="progressbar">
+                                                {{ "%.1f"|format(percentage) }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Scan Information</h6>
+                                        <p class="mb-1"><strong>Scan Date:</strong> {{ result.scan_date }}</p>
+                                        {% if result.permalink %}
+                                            <a href="{{ result.permalink }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-external-link-alt me-1"></i>
+                                                View Full Report
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Scan Results -->
+                        {% if result.scans %}
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-list-ul me-2"></i>
+                                        Detailed Detection Results
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Security Vendor</th>
+                                                    <th>Result</th>
+                                                    <th>Version</th>
+                                                    <th>Update</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for vendor, details in result.scans.items() %}
+                                                    <tr>
+                                                        <td><strong>{{ vendor }}</strong></td>
+                                                        <td>
+                                                            {% if details.detected %}
+                                                                <span class="badge bg-danger">
+                                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                                    {{ details.result or 'Detected' }}
+                                                                </span>
+                                                            {% else %}
+                                                                <span class="badge bg-success">
+                                                                    <i class="fas fa-check me-1"></i>
+                                                                    Clean
+                                                                </span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td><small class="text-muted">{{ details.version or 'N/A' }}</small></td>
+                                                        <td><small class="text-muted">{{ details.update or 'N/A' }}</small></td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    {% else %}
+                        <!-- File Not Found -->
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h4>File Not Found</h4>
+                                <p class="text-muted">{{ result.message }}</p>
+                                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>
+                                    Try Another Scan
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        {% elif scan_type == 'ip' %}
+            <!-- IP Address Results -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <!-- Threat Level Card -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                IP Reputation Analysis
+                            </h5>
+                            {% set threat_class = 'success' if result.threat_level == 'Clean' else 'warning' if result.threat_level in ['Low Risk'] else 'danger' %}
+                            <span class="badge bg-{{ threat_class }} fs-6">
+                                {% if result.threat_level == 'Clean' %}
+                                    <i class="fas fa-check-circle me-1"></i>
+                                {% elif result.threat_level == 'Low Risk' %}
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                {% else %}
+                                    <i class="fas fa-times-circle me-1"></i>
+                                {% endif %}
+                                {{ result.threat_level }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Abuse Confidence</h6>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="progress flex-grow-1 me-3">
+                                            <div class="progress-bar bg-{{ threat_class }}" 
+                                                 style="width: {{ result.abuse_confidence }}%" 
+                                                 role="progressbar">
+                                            </div>
+                                        </div>
+                                        <strong>{{ result.abuse_confidence }}%</strong>
+                                    </div>
+                                    <p class="text-muted">
+                                        {% if result.abuse_confidence == 0 %}
+                                            No abuse reports found for this IP address.
+                                        {% else %}
+                                            This IP has been reported for malicious activity with {{ result.abuse_confidence }}% confidence.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Report Summary</h6>
+                                    <p class="mb-1"><strong>Total Reports:</strong> {{ result.total_reports }}</p>
+                                    {% if result.last_reported %}
+                                        <p class="mb-1"><strong>Last Reported:</strong> {{ result.last_reported }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IP Information Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                IP Address Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>IP Address:</strong></td>
+                                            <td><code>{{ scan_input }}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Country:</strong></td>
+                                            <td>
+                                                {% if result.country_code != 'Unknown' %}
+                                                    <span class="fi fi-{{ result.country_code.lower() }} me-2"></span>
+                                                {% endif %}
+                                                {{ result.country_code }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Public IP:</strong></td>
+                                            <td>
+                                                {% if result.is_public %}
+                                                    <span class="badge bg-info">Yes</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">No</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Usage Type:</strong></td>
+                                            <td>{{ result.usage_type }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>ISP:</strong></td>
+                                            <td>{{ result.isp }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Educational Information -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Understanding the Results
+                    </h6>
+                    <p class="mb-0">
+                        {% if scan_type == 'hash' %}
+                            These results show how many security vendors have flagged this file as malicious. 
+                            A higher detection rate indicates a higher probability of malware. However, some 
+                            legitimate files may occasionally trigger false positives.
+                        {% else %}
+                            The abuse confidence percentage indicates how likely this IP address is to be 
+                            involved in malicious activities based on community reports. Consider additional 
+                            context when making security decisions.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Cybersecurity Scanner - Educational Tool
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        Powered by {% if scan_type == 'hash' %}VirusTotal{% else %}AbuseIPDB{% endif %} API
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+    
+    <script>
+        // Copy to clipboard functionality
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success feedback
+                const button = event.target.closest('button');
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalIcon;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-secondary');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
